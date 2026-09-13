@@ -22,7 +22,9 @@ public class Account {
 
     private String firstName;
     private String lastName;
+    private String email;
     private int age;
+    private String pwd;
     private Date createdAt;
 
 }
