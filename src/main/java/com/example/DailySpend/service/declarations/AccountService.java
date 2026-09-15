@@ -6,6 +6,7 @@ import com.example.DailySpend.model.Account;
 
 public interface AccountService {
 
+    // email comes from authetication.getName
     AccountResponseDTO register(AccountRequestDTO accountRequestDTO);
 
     default AccountResponseDTO toDTO(Account account){
