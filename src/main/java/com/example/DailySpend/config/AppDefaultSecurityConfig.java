@@ -38,6 +38,9 @@ public class AppDefaultSecurityConfig {
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/*/income").hasAnyRole("MEMBER","ADMIN")
+                        .requestMatchers("/*/income/add").hasAnyRole("MEMBER","ADMIN")
+                        .requestMatchers("/*/spend").hasAnyRole("MEMBER","ADMIN")
+                        .requestMatchers("/*/spend/add").hasAnyRole("MEMBER","ADMIN")
                         .requestMatchers("/login").authenticated()
                         .requestMatchers("/contact", "/error", "/accounts").permitAll()));
         http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));

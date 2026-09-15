@@ -4,17 +4,14 @@ import com.example.DailySpend.dto.AddIncomeRequestDTO;
 import com.example.DailySpend.dto.AddIncomeResponseDTO;
 import com.example.DailySpend.model.Income;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public interface IncomeService {
 
     AddIncomeResponseDTO addIncome(String email, AddIncomeRequestDTO addIncomeRequestDTO);
 
-    default AddIncomeResponseDTO toDTO(Income income){
+    default AddIncomeResponseDTO incomeToDTO(Income income){
 
         String msg =
-                "Successfull added " +
+                "Successfully added " +
                         income.getName() +
                         " with amount " +
                         income.getAmount();

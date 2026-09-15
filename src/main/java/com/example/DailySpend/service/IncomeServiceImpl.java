@@ -10,9 +10,7 @@ import com.example.DailySpend.repository.IncomeRepository;
 import com.example.DailySpend.service.declarations.IncomeService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class IncomeServiceImpl implements IncomeService {
@@ -34,18 +32,16 @@ public class IncomeServiceImpl implements IncomeService {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow( () -> new AccountNotFoundException("Account not found for email: " + email));
 
-        Date gotAt = new Date();
-
         Income income = new Income(
                 null,
                 addIncomeRequestDTO.name(),
                 addIncomeRequestDTO.amount(),
-                gotAt,
+                new Date(),
                 account
         );
 
         incomeRepository.save(income);
 
-        return toDTO(income);
+        return incomeToDTO(income);
     }
 }
