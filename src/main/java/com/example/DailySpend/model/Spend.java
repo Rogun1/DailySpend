@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "spends")
@@ -22,7 +22,7 @@ public class Spend {
 
     private String name;
     private Double amount;
-    private Date date;
+    private LocalDate spendDate;
 
     @ManyToOne
     @JoinColumn(name = "account_id")

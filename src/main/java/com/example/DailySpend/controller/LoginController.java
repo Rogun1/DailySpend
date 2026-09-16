@@ -1,6 +1,5 @@
 package com.example.DailySpend.controller;
 
-import com.example.DailySpend.service.declarations.AccountService;
 import com.example.DailySpend.service.declarations.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

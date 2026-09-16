@@ -39,6 +39,7 @@ public class AppDevSecurityConfig {
                                 .requestMatchers("/*/income/add").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/*/spend").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/*/spend/add").hasAnyRole("MEMBER","ADMIN")
+                                .requestMatchers("/*/spend/daily").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/login").authenticated()
                                 .requestMatchers("/contact", "/error", "/accounts").permitAll()));
         http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
