@@ -253,17 +253,38 @@ function Dashboard({ onLogout }) {
 
             {dailySpending && (
               <div className="result-card">
-                {dailySpending.length === 0 ? (
-                  <p className="empty-message">
-                    No spending found for this date.
-                  </p>
-                ) : (
-                  dailySpending.map((spending, index) => (
-                    <div className="daily-spend" key={index}>
-                      {spending.response}
-                    </div>
-                  ))
-                )}
+
+                <div className="total">
+                  <span>Total spending</span>
+                  <strong>{dailySpending.total}</strong>
+                </div>
+
+                <div className="categories">
+                  <h3>Spends</h3>
+
+                  {dailySpending.spends.length === 0 ? (
+                    <p className="empty-message">
+                      No spending found for this date.
+                    </p>
+                  ) : (
+                    dailySpending.spends.map((spend, index) => (
+                      <div className="daily-spend" key={index}>
+                        <div>
+                          <strong>{spend.name}</strong>
+                          <span>
+                            {' '}({spend.category})
+                          </span>
+                        </div>
+
+                        <div>
+                          {spend.amount} × {spend.quantity} ={' '}
+                          <strong>{spend.totalAmount}</strong>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
               </div>
             )}
           </div>

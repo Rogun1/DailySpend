@@ -4,23 +4,25 @@ import com.example.DailySpend.constants.SpendCategory;
 import com.example.DailySpend.dto.*;
 import com.example.DailySpend.model.Spend;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Map;
 
 public interface SpendService {
 
   SpendResponseDTO addSpend(String email, SpendRequestDTO spendRequestDTO);
-  List<SpendDailyResponseDTO> getSpendDaily(String email, SpendDailyRequestDTO spendDailyRequestDTO);
+  SpendDailyResponseDTO getSpendDaily(String email, SpendDailyRequestDTO spendDailyRequestDTO);
   SummaryResponseDTO summary(String email, Long lastDays);
 
 
     default SpendResponseDTO spendToDTO(Spend spend){
 
+        BigDecimal totalAmount = spend.getAmount().multiply(BigDecimal.valueOf(spend.getQuantity()));
+
         String msg =
                 "Successfully added " +
                         spend.getName() +
                         " with amount " +
-                        spend.getAmount() +
+                        totalAmount +
                         " and category: " +
                         spend.getCategory();
 
@@ -29,24 +31,23 @@ public interface SpendService {
         );
     }
 
-    default SpendDailyResponseDTO spendDailyToDTO(Spend spend){
+    default SpendDailyItemDTO spendDailyItemToDTO(Spend spend) {
 
-        String msg =
-                "Spend for: " +
-                        spend.getName() +
-                        ", costs: " +
-                        spend.getAmount() +
-                        ", for: " +
-                        spend.getCategory().name();
+        BigDecimal totalAmount = spend.getAmount()
+                .multiply(BigDecimal.valueOf(spend.getQuantity()));
 
-        return new SpendDailyResponseDTO(
-                msg
+        return new SpendDailyItemDTO(
+                spend.getName(),
+                spend.getAmount(),
+                spend.getQuantity(),
+                spend.getCategory(),
+                totalAmount
         );
     }
 
     default SummaryResponseDTO summaryToDTO(
-            Map<SpendCategory, Double> categoryAndAmount,
-            Double total
+            Map<SpendCategory, BigDecimal> categoryAndAmount,
+            BigDecimal total
     ) {
         return new SummaryResponseDTO(
                 categoryAndAmount,

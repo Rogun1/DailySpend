@@ -10,6 +10,7 @@ import com.example.DailySpend.repository.IncomeRepository;
 import com.example.DailySpend.service.declarations.IncomeService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Service
@@ -31,6 +32,10 @@ public class IncomeServiceImpl implements IncomeService {
     public AddIncomeResponseDTO addIncome(String email, AddIncomeRequestDTO addIncomeRequestDTO){
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow( () -> new AccountNotFoundException("Account not found for email: " + email));
+
+        if (addIncomeRequestDTO.amount().compareTo(BigDecimal.ZERO) <= 0){
+            throw new RuntimeException("Invalid amount");
+        }
 
         Income income = new Income(
                 null,

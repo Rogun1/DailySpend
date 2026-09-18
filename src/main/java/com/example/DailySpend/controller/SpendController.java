@@ -25,8 +25,16 @@ public class SpendController {
     }
 
     @GetMapping("/daily")
-    public List<SpendDailyResponseDTO> getSpendDaily(Authentication authentication, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
-        return spendService.getSpendDaily(authentication.getName(), new SpendDailyRequestDTO(date));
+    public SpendDailyResponseDTO getSpendDaily(
+            Authentication authentication,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date
+    ) {
+        return spendService.getSpendDaily(
+                authentication.getName(),
+                new SpendDailyRequestDTO(date)
+        );
     }
 
     @GetMapping("/summary/{summaryLastDays}")

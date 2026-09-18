@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -21,7 +22,7 @@ public class Income {
     private Long id;
 
     private String name;
-    private Double amount;
+    private BigDecimal amount;
     private Date date;
 
     @ManyToOne
