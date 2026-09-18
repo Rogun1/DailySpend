@@ -54,6 +54,17 @@ export function register(account) {
   })
 }
 
+export function getProfile() {
+  return apiRequest('/accounts/me')
+}
+
+export function updateProfile(profile) {
+  return apiRequest('/accounts/me', {
+    method: 'PUT',
+    body: JSON.stringify(profile),
+  })
+}
+
 export function getSummary(days) {
   return apiRequest(`/accounts/spend/summary/${days}`)
 }

@@ -1,9 +1,12 @@
 package com.example.DailySpend.service;
 
 import com.example.DailySpend.constants.AccountRole;
+import com.example.DailySpend.dto.AccountProfileResponseDTO;
 import com.example.DailySpend.dto.AccountRequestDTO;
 import com.example.DailySpend.dto.AccountResponseDTO;
+import com.example.DailySpend.dto.AccountUpdateRequestDTO;
 import com.example.DailySpend.exceptions.AccountExistsException;
+import com.example.DailySpend.exceptions.AccountNotFoundException;
 import com.example.DailySpend.model.Account;
 import com.example.DailySpend.model.Authority;
 import com.example.DailySpend.repository.AccountRepository;
@@ -66,6 +69,39 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
 
         return toDTO(account);
+    }
+
+    @Override
+    public AccountProfileResponseDTO profile(String email){
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found for email: " + email));
+
+        return accProfileToDTO(account);
+    }
+
+    @Override
+    public AccountProfileResponseDTO updateProfile(
+            String email,
+            AccountUpdateRequestDTO accountUpdateRequestDTO
+    ) {
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new AccountNotFoundException(
+                                "Account not found for email: " + email
+                        )
+                );
+
+        if (accountUpdateRequestDTO.age() <= 0){
+            throw new RuntimeException("Invalid age");
+        }
+
+        account.setFirstName(accountUpdateRequestDTO.firstName());
+        account.setLastName(accountUpdateRequestDTO.lastName());
+        account.setAge(accountUpdateRequestDTO.age());
+
+        accountRepository.save(account);
+
+        return accProfileToDTO(account);
     }
 
 }

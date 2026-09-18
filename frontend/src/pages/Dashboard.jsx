@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
+  getProfile,
+  updateProfile,
   getSummary,
   getDailySpending,
   getSpendCategories,
@@ -19,6 +21,18 @@ function Dashboard({ onLogout }) {
   const [dailySpending, setDailySpending] = useState(null)
 
   const [categories, setCategories] = useState([])
+
+    const [profile, setProfile] = useState({
+      firstName: '',
+      lastName: '',
+      age: '',
+    })
+
+    const [profileEdit, setProfileEdit] = useState({
+      firstName: '',
+      lastName: '',
+      age: '',
+    })
 
   const [spend, setSpend] = useState({
     name: '',
@@ -48,6 +62,36 @@ function Dashboard({ onLogout }) {
     loadCategories()
   }, [])
 
+  useEffect(() => {
+    if (activeSection !== 'profile') {
+      return
+    }
+
+    async function loadProfile() {
+      try {
+        clearMessages()
+
+        const data = await getProfile()
+
+        setProfile({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          age: data.age,
+        })
+
+        setProfileEdit({
+          firstName: '',
+          lastName: '',
+          age: '',
+        })
+      } catch (error) {
+        setError(error.message)
+      }
+    }
+
+    loadProfile()
+  }, [activeSection])
+
   function clearMessages() {
     setMessage('')
     setError('')
@@ -61,7 +105,6 @@ function Dashboard({ onLogout }) {
   async function handleSummary() {
     try {
       clearMessages()
-
       const data = await getSummary(Number(summaryDays))
       setSummary(data)
     } catch (error) {
@@ -72,7 +115,6 @@ function Dashboard({ onLogout }) {
   async function handleDailySpending() {
     try {
       clearMessages()
-
       const data = await getDailySpending(dailyDate)
       setDailySpending(data)
     } catch (error) {
@@ -92,7 +134,6 @@ function Dashboard({ onLogout }) {
       })
 
       setMessage(data.response ?? 'Spend added successfully')
-
       setSpend({
         name: '',
         amount: '',
@@ -114,11 +155,38 @@ function Dashboard({ onLogout }) {
       })
 
       setMessage(data.response ?? 'Income added successfully')
-
       setIncome({
         name: '',
         amount: '',
       })
+    } catch (error) {
+      setError(error.message)
+    }
+  }
+
+  async function handleUpdateProfile() {
+    try {
+      clearMessages()
+
+      const data = await updateProfile({
+        firstName: profileEdit.firstName,
+        lastName: profileEdit.lastName,
+        age: Number(profileEdit.age),
+      })
+
+      setProfile({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        age: data.age,
+      })
+
+      setProfileEdit({
+        firstName: '',
+        lastName: '',
+        age: '',
+      })
+
+      setMessage('Profile updated successfully')
     } catch (error) {
       setError(error.message)
     }
@@ -169,6 +237,13 @@ function Dashboard({ onLogout }) {
           onClick={() => changeSection('income')}
         >
           Add Income
+        </button>
+
+        <button
+          className={activeSection === 'profile' ? 'active' : ''}
+          onClick={() => changeSection('profile')}
+        >
+          Profile
         </button>
       </nav>
 
@@ -253,7 +328,6 @@ function Dashboard({ onLogout }) {
 
             {dailySpending && (
               <div className="result-card">
-
                 <div className="total">
                   <span>Total spending</span>
                   <strong>{dailySpending.total}</strong>
@@ -271,9 +345,7 @@ function Dashboard({ onLogout }) {
                       <div className="daily-spend" key={index}>
                         <div>
                           <strong>{spend.name}</strong>
-                          <span>
-                            {' '}({spend.category})
-                          </span>
+                          <span> ({spend.category})</span>
                         </div>
 
                         <div>
@@ -284,7 +356,6 @@ function Dashboard({ onLogout }) {
                     ))
                   )}
                 </div>
-
               </div>
             )}
           </div>
@@ -433,6 +504,102 @@ function Dashboard({ onLogout }) {
           </div>
         )}
 
+        {activeSection === 'profile' && (
+          <div className="dashboard-card">
+            <div className="section-header">
+              <h2>Profile</h2>
+              <p>View your account information and update your profile.</p>
+            </div>
+
+            <div className="result-card">
+              <div className="section-header">
+                <h3>Account Information</h3>
+                <p>Your current account information.</p>
+              </div>
+
+              <div className="category-row">
+                <span>First name</span>
+                <strong>{profile.firstName}</strong>
+              </div>
+
+              <div className="category-row">
+                <span>Last name</span>
+                <strong>{profile.lastName}</strong>
+              </div>
+
+              <div className="category-row">
+                <span>Age</span>
+                <strong>{profile.age}</strong>
+              </div>
+            </div>
+
+            <div className="result-card">
+              <div className="section-header">
+                <h3>Edit Profile</h3>
+                <p>Change your personal information.</p>
+              </div>
+
+              <div className="form-grid">
+                <div className="input-group">
+                  <label>First name</label>
+
+                  <input
+                    type="text"
+                    placeholder="First name"
+                    value={profileEdit.firstName}
+                    onChange={(e) =>
+                      setProfileEdit({
+                        ...profileEdit,
+                        firstName: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Last name</label>
+
+                  <input
+                    type="text"
+                    placeholder="Last name"
+                    value={profileEdit.lastName}
+                    onChange={(e) =>
+                      setProfileEdit({
+                        ...profileEdit,
+                        lastName: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Age</label>
+
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Age"
+                    value={profileEdit.age}
+                    onChange={(e) =>
+                      setProfileEdit({
+                        ...profileEdit,
+                        age: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <button
+                className="primary-button full-width"
+                onClick={handleUpdateProfile}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        )}
+
         {message && (
           <div className="message success">
             {message}
@@ -444,7 +611,6 @@ function Dashboard({ onLogout }) {
             {error}
           </div>
         )}
-
       </main>
     </div>
   )
