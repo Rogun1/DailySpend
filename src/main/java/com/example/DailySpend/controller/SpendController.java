@@ -1,11 +1,9 @@
 package com.example.DailySpend.controller;
 
-import com.example.DailySpend.dto.SpendDailyRequestDTO;
-import com.example.DailySpend.dto.SpendDailyResponseDTO;
-import com.example.DailySpend.dto.SpendRequestDTO;
-import com.example.DailySpend.dto.SpendResponseDTO;
+import com.example.DailySpend.dto.*;
 import com.example.DailySpend.service.declarations.SpendService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -27,5 +25,10 @@ public class SpendController {
     @GetMapping("/daily")
     public List<SpendDailyResponseDTO> getSpendDaily(Authentication authentication, @RequestBody @Valid SpendDailyRequestDTO spendDailyRequestDTO){
         return spendService.getSpendDaily(authentication.getName(), spendDailyRequestDTO);
+    }
+
+    @GetMapping("/summary/{summaryLastDays}")
+    public SummaryResponseDTO summary(Authentication authentication, @PathVariable Long summaryLastDays){
+        return spendService.summary(authentication.getName(), summaryLastDays);
     }
 }

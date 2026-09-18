@@ -9,4 +9,5 @@ import java.util.List;
 public interface SpendRepository extends JpaRepository<Spend, Long> {
 
     List<Spend> findAllByAccountIdAndSpendDate(Long accountId, LocalDate date);
+    List<Spend> findAllByAccountIdAndSpendDateBetween(Long accountId, LocalDate from, LocalDate to);
 }
