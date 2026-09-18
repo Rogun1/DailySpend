@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -22,8 +23,9 @@ public class Spend {
     private Long id;
 
     private String name;
-    private Double amount;
+    private BigDecimal amount;
     private Integer quantity;
+    @Enumerated(EnumType.STRING)
     private SpendCategory category;
     private LocalDate spendDate;
 

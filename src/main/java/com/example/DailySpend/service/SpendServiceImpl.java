@@ -4,13 +4,15 @@ import com.example.DailySpend.constants.SpendCategory;
 import com.example.DailySpend.dto.*;
 import com.example.DailySpend.exceptions.AccountNotFoundException;
 import com.example.DailySpend.model.Account;
+import com.example.DailySpend.model.Income;
 import com.example.DailySpend.model.Spend;
 import com.example.DailySpend.repository.AccountRepository;
+import com.example.DailySpend.repository.IncomeRepository;
 import com.example.DailySpend.repository.SpendRepository;
 import com.example.DailySpend.service.declarations.SpendService;
-import jdk.jfr.Category;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +23,16 @@ public class SpendServiceImpl implements SpendService {
 
     private final SpendRepository spendRepository;
     private final AccountRepository accountRepository;
+    private final IncomeRepository incomeRepository;
 
     public SpendServiceImpl(
             SpendRepository spendRepository,
-            AccountRepository accountRepository
+            AccountRepository accountRepository,
+            IncomeRepository incomeRepository
     ){
         this.spendRepository = spendRepository;
         this.accountRepository = accountRepository;
+        this.incomeRepository = incomeRepository;
     }
 
     @Override
@@ -35,14 +40,19 @@ public class SpendServiceImpl implements SpendService {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow( () -> new AccountNotFoundException("Account not found for email: " + email));
 
+        if (spendRequestDTO.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Invalid amount");
+        }
+        if (spendRequestDTO.quantity() <= 0){
+            throw new RuntimeException("Invalid quantity");
+        }
+
         String categoryUpperCase = spendRequestDTO.category().toUpperCase();
-        System.out.println("category to upper " + categoryUpperCase);
         SpendCategory categoryFound = null;
 
         for (SpendCategory category: SpendCategory.values()){
             if (category.name().equals(categoryUpperCase)){
                 categoryFound = category;
-                System.out.println("category found" + categoryFound);
             }
         }
 
@@ -60,27 +70,44 @@ public class SpendServiceImpl implements SpendService {
                 account
         );
 
-        System.out.println(spend.getCategory());
-
         spendRepository.save(spend);
 
         return spendToDTO(spend);
     }
 
     @Override
-    public List<SpendDailyResponseDTO> getSpendDaily(String email, SpendDailyRequestDTO spendDailyRequestDTO){
-
+    public SpendDailyResponseDTO getSpendDaily(
+            String email,
+            SpendDailyRequestDTO spendDailyRequestDTO
+    ) {
         Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found for email: " + email));
+                .orElseThrow(() ->
+                        new AccountNotFoundException(
+                                "Account not found for email: " + email
+                        )
+                );
 
         LocalDate date = spendDailyRequestDTO.date();
 
-        List<SpendDailyResponseDTO> spendsList = spendRepository.findAllByAccountIdAndSpendDate(account.getId(), date)
-                .stream()
-                .map(this::spendDailyToDTO)
+        List<Spend> spendsList =
+                spendRepository.findAllByAccountIdAndSpendDate(
+                        account.getId(),
+                        date
+                );
+
+        BigDecimal total = spendsList.stream()
+                .map(spend -> spend.getAmount()
+                        .multiply(BigDecimal.valueOf(spend.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<SpendDailyItemDTO> spends = spendsList.stream()
+                .map(this::spendDailyItemToDTO)
                 .toList();
 
-        return spendsList;
+        return new SpendDailyResponseDTO(
+                spends,
+                total
+        );
     }
 
     @Override
@@ -94,14 +121,20 @@ public class SpendServiceImpl implements SpendService {
 
         List<Spend> spendList = spendRepository.findAllByAccountIdAndSpendDateBetween(account.getId(), dateFrom, dateTo);
 
-        Map<SpendCategory, Double> amountPerCategory = spendList.stream()
-                .collect(Collectors.groupingBy(Spend::getCategory,
-                        Collectors.summingDouble(Spend::getAmount)));
+        Map<SpendCategory, BigDecimal> amountPerCategory = spendList.stream()
+                .collect(Collectors.groupingBy(
+                        Spend::getCategory,
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                spend -> spend.getAmount()
+                                        .multiply(BigDecimal.valueOf(spend.getQuantity())),
+                                BigDecimal::add
+                        )
+                ));
 
-        Double total = amountPerCategory.values()
+        BigDecimal total = amountPerCategory.values()
                 .stream()
-                .mapToDouble(Double::doubleValue)
-                .sum();
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return summaryToDTO(amountPerCategory, total);
     }
