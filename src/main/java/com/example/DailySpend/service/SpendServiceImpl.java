@@ -1,5 +1,6 @@
 package com.example.DailySpend.service;
 
+import com.example.DailySpend.constants.SpendCategory;
 import com.example.DailySpend.dto.SpendDailyRequestDTO;
 import com.example.DailySpend.dto.SpendDailyResponseDTO;
 import com.example.DailySpend.dto.SpendRequestDTO;
@@ -34,13 +35,32 @@ public class SpendServiceImpl implements SpendService {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow( () -> new AccountNotFoundException("Account not found for email: " + email));
 
+        String categoryUpperCase = spendRequestDTO.category().toUpperCase();
+        System.out.println("category to upper " + categoryUpperCase);
+        SpendCategory categoryFound = null;
+
+        for (SpendCategory category: SpendCategory.values()){
+            if (category.name().equals(categoryUpperCase)){
+                categoryFound = category;
+                System.out.println("category found" + categoryFound);
+            }
+        }
+
+        if (categoryFound == null){
+            throw  new RuntimeException("Category not found");
+        }
+
         Spend spend = new Spend(
                 null,
                 spendRequestDTO.name(),
                 spendRequestDTO.amount(),
+                spendRequestDTO.quantity(),
+                categoryFound,
                 LocalDate.now(),
                 account
         );
+
+        System.out.println(spend.getCategory());
 
         spendRepository.save(spend);
 

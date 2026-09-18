@@ -1,5 +1,6 @@
 package com.example.DailySpend.model;
 
+import com.example.DailySpend.constants.SpendCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,8 @@ public class Spend {
 
     private String name;
     private Double amount;
+    private Integer quantity;
+    private SpendCategory category;
     private LocalDate spendDate;
 
     @ManyToOne

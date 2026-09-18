@@ -21,7 +21,9 @@ public interface SpendService {
                 "Successfully added " +
                         spend.getName() +
                         " with amount " +
-                        spend.getAmount();
+                        spend.getAmount() +
+                        " and categor: " +
+                        spend.getCategory();
 
         return new SpendResponseDTO(
                 msg
