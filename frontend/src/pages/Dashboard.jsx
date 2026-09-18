@@ -7,6 +7,7 @@ import {
   getSpendCategories,
   addSpend,
   addIncome,
+  getIncomeSummary,
   logout,
 } from '../services/api'
 import './Dashboard.css'
@@ -22,28 +23,34 @@ function Dashboard({ onLogout }) {
 
   const [categories, setCategories] = useState([])
 
-    const [profile, setProfile] = useState({
-      firstName: '',
-      lastName: '',
-      age: '',
-    })
+  const [profile, setProfile] = useState({
+    firstName: '',
+    lastName: '',
+    age: '',
+  })
 
-    const [profileEdit, setProfileEdit] = useState({
-      firstName: '',
-      lastName: '',
-      age: '',
-    })
+  const [profileEdit, setProfileEdit] = useState({
+    firstName: '',
+    lastName: '',
+    age: '',
+  })
+
+  const [income, setIncome] = useState({
+    name: '',
+    amount: '',
+    incomeType: '',
+  })
+
+  const [incomeSummary, setIncomeSummary] = useState({
+    CASH: 0,
+    CARD: 0,
+  })
 
   const [spend, setSpend] = useState({
     name: '',
     amount: '',
     quantity: '',
     category: '',
-  })
-
-  const [income, setIncome] = useState({
-    name: '',
-    amount: '',
   })
 
   const [message, setMessage] = useState('')
@@ -78,18 +85,35 @@ function Dashboard({ onLogout }) {
           lastName: data.lastName,
           age: data.age,
         })
-
-        setProfileEdit({
-          firstName: '',
-          lastName: '',
-          age: '',
-        })
       } catch (error) {
         setError(error.message)
       }
     }
 
     loadProfile()
+  }, [activeSection])
+
+  useEffect(() => {
+    if (activeSection !== 'income') {
+      return
+    }
+
+    async function loadIncomeSummary() {
+      try {
+        clearMessages()
+
+        const data = await getIncomeSummary()
+
+        setIncomeSummary({
+          CASH: data.CASH ?? 0,
+          CARD: data.CARD ?? 0,
+        })
+      } catch (error) {
+        setError(error.message)
+      }
+    }
+
+    loadIncomeSummary()
   }, [activeSection])
 
   function clearMessages() {
@@ -105,7 +129,9 @@ function Dashboard({ onLogout }) {
   async function handleSummary() {
     try {
       clearMessages()
+
       const data = await getSummary(Number(summaryDays))
+
       setSummary(data)
     } catch (error) {
       setError(error.message)
@@ -115,7 +141,9 @@ function Dashboard({ onLogout }) {
   async function handleDailySpending() {
     try {
       clearMessages()
+
       const data = await getDailySpending(dailyDate)
+
       setDailySpending(data)
     } catch (error) {
       setError(error.message)
@@ -134,6 +162,7 @@ function Dashboard({ onLogout }) {
       })
 
       setMessage(data.response ?? 'Spend added successfully')
+
       setSpend({
         name: '',
         amount: '',
@@ -152,12 +181,22 @@ function Dashboard({ onLogout }) {
       const data = await addIncome({
         name: income.name,
         amount: Number(income.amount),
+        incomeType: income.incomeType,
       })
 
       setMessage(data.response ?? 'Income added successfully')
+
       setIncome({
         name: '',
         amount: '',
+        incomeType: '',
+      })
+
+      const updatedSummary = await getIncomeSummary()
+
+      setIncomeSummary({
+        CASH: updatedSummary.CASH ?? 0,
+        CARD: updatedSummary.CARD ?? 0,
       })
     } catch (error) {
       setError(error.message)
@@ -455,6 +494,23 @@ function Dashboard({ onLogout }) {
         {activeSection === 'income' && (
           <div className="dashboard-card">
             <div className="section-header">
+              <h2>Income</h2>
+              <p>See your income overview and add new income.</p>
+            </div>
+
+            <div className="result-card">
+              <div className="total">
+                <span>Cash</span>
+                <strong>{incomeSummary.CASH}</strong>
+              </div>
+
+              <div className="total">
+                <span>Card</span>
+                <strong>{incomeSummary.CARD}</strong>
+              </div>
+            </div>
+
+            <div className="section-header" style={{ marginTop: '30px' }}>
               <h2>Add Income</h2>
               <p>Add a new source of income to your account.</p>
             </div>
@@ -492,6 +548,24 @@ function Dashboard({ onLogout }) {
                     })
                   }
                 />
+              </div>
+
+              <div className="input-group">
+                <label>Type</label>
+
+                <select
+                  value={income.incomeType}
+                  onChange={(e) =>
+                    setIncome({
+                      ...income,
+                      incomeType: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select type</option>
+                  <option value="CASH">Cash</option>
+                  <option value="CARD">Card</option>
+                </select>
               </div>
             </div>
 

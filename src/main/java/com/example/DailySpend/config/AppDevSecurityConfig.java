@@ -43,6 +43,7 @@ public class AppDevSecurityConfig {
                         .authorizeHttpRequests((requests) -> requests
                                 .requestMatchers("/*/income").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/*/income/add").hasAnyRole("MEMBER","ADMIN")
+                                .requestMatchers("/*/income/summary").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/*/spend").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/*/spend/add").hasAnyRole("MEMBER","ADMIN")
                                 .requestMatchers("/*/spend/daily").hasAnyRole("MEMBER","ADMIN")

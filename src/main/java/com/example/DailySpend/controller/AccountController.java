@@ -27,6 +27,7 @@ public class AccountController {
         return accountService.profile(authentication.getName());
     }
 
+    // not added password update, because we are local
     @PutMapping("/me")
     public AccountProfileResponseDTO updateProfile(
             Authentication authentication,

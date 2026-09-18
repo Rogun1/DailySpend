@@ -87,6 +87,10 @@ export function addIncome(income) {
   })
 }
 
+export function getIncomeSummary() {
+  return apiRequest('/accounts/income/summary')
+}
+
 export function logout() {
   localStorage.removeItem('token')
 }
