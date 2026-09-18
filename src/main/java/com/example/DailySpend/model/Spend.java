@@ -24,6 +24,7 @@ public class Spend {
     private String name;
     private Double amount;
     private Integer quantity;
+    @Enumerated(EnumType.STRING)
     private SpendCategory category;
     private LocalDate spendDate;
 

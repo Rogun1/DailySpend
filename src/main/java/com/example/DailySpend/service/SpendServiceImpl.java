@@ -8,7 +8,6 @@ import com.example.DailySpend.model.Spend;
 import com.example.DailySpend.repository.AccountRepository;
 import com.example.DailySpend.repository.SpendRepository;
 import com.example.DailySpend.service.declarations.SpendService;
-import jdk.jfr.Category;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,14 +34,16 @@ public class SpendServiceImpl implements SpendService {
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow( () -> new AccountNotFoundException("Account not found for email: " + email));
 
+        if (spendRequestDTO.amount() <= 0){
+            throw new RuntimeException("Invalid amount");
+        }
+
         String categoryUpperCase = spendRequestDTO.category().toUpperCase();
-        System.out.println("category to upper " + categoryUpperCase);
         SpendCategory categoryFound = null;
 
         for (SpendCategory category: SpendCategory.values()){
             if (category.name().equals(categoryUpperCase)){
                 categoryFound = category;
-                System.out.println("category found" + categoryFound);
             }
         }
 
@@ -59,8 +60,6 @@ public class SpendServiceImpl implements SpendService {
                 LocalDate.now(),
                 account
         );
-
-        System.out.println(spend.getCategory());
 
         spendRepository.save(spend);
 

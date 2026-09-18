@@ -47,15 +47,10 @@ public interface SpendService {
     default SummaryResponseDTO summaryToDTO(
             Map<SpendCategory, Double> categoryAndAmount,
             Double total
-    ){
-        String mapList = "Categories and amounts: " +
-                categoryAndAmount;
-        String totalAmount = "Total: " + total;
-
-        String msg = mapList + "\n " + totalAmount;
-
+    ) {
         return new SummaryResponseDTO(
-                msg
+                categoryAndAmount,
+                total
         );
     }
 }
